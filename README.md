@@ -2,6 +2,6 @@
 
 ## Overview
 
-### SKU:xxx
+### SKU:K141
 
 Basic library for M5Stack M5StamPLC Board
