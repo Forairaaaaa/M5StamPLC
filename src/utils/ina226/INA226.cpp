@@ -42,16 +42,14 @@ bool INA226_Class::begin()
     return result;
 }
 
-bool INA226_Class::configure(ina226_averages_t avg,
-                       ina226_busConvTime_t busConvTime,
-                       ina226_shuntConvTime_t shuntConvTime,
-                       ina226_mode_t mode)
+bool INA226_Class::configure(ina226_averages_t avg, ina226_busConvTime_t busConvTime,
+                             ina226_shuntConvTime_t shuntConvTime, ina226_mode_t mode)
 {
     uint16_t config = 0;
 
     config |= (avg << 9 | busConvTime << 6 | shuntConvTime << 3 | mode);
 
-    vBusMax = 36;
+    vBusMax   = 36;
     vShuntMax = 0.08192f;
 
     writeRegister16(INA226_REG_CONFIG, config);
@@ -85,19 +83,19 @@ bool INA226_Class::calibrate(float rShuntValue, float iMaxExpected)
     return true;
 }
 
-float INA226_Class::getMaxPossibleCurrent(void) { return (vShuntMax / rShunt); }
+float INA226_Class::getMaxPossibleCurrent(void)
+{
+    return (vShuntMax / rShunt);
+}
 
 float INA226_Class::getMaxCurrent(void)
 {
-    float maxCurrent = (currentLSB * 32767);
+    float maxCurrent  = (currentLSB * 32767);
     float maxPossible = getMaxPossibleCurrent();
 
-    if (maxCurrent > maxPossible)
-    {
+    if (maxCurrent > maxPossible) {
         return maxPossible;
-    }
-    else
-    {
+    } else {
         return maxCurrent;
     }
 }
@@ -106,23 +104,32 @@ float INA226_Class::getMaxShuntVoltage(void)
 {
     float maxVoltage = getMaxCurrent() * rShunt;
 
-    if (maxVoltage >= vShuntMax)
-    {
+    if (maxVoltage >= vShuntMax) {
         return vShuntMax;
-    }
-    else
-    {
+    } else {
         return maxVoltage;
     }
 }
 
-float INA226_Class::getMaxPower(void) { return (getMaxCurrent() * vBusMax); }
+float INA226_Class::getMaxPower(void)
+{
+    return (getMaxCurrent() * vBusMax);
+}
 
-float INA226_Class::readBusPower(void) { return (readRegister16(INA226_REG_POWER) * powerLSB); }
+float INA226_Class::readBusPower(void)
+{
+    return (readRegister16(INA226_REG_POWER) * powerLSB);
+}
 
-float INA226_Class::readShuntCurrent(void) { return (readRegister16(INA226_REG_CURRENT) * currentLSB); }
+float INA226_Class::readShuntCurrent(void)
+{
+    return (readRegister16(INA226_REG_CURRENT) * currentLSB);
+}
 
-int16_t INA226_Class::readRawShuntCurrent(void) { return readRegister16(INA226_REG_CURRENT); }
+int16_t INA226_Class::readRawShuntCurrent(void)
+{
+    return readRegister16(INA226_REG_CURRENT);
+}
 
 float INA226_Class::readShuntVoltage(void)
 {
@@ -185,23 +192,50 @@ ina226_mode_t INA226_Class::getMode(void)
     return (ina226_mode_t)value;
 }
 
-void INA226_Class::setMaskEnable(uint16_t mask) { writeRegister16(INA226_REG_MASKENABLE, mask); }
+void INA226_Class::setMaskEnable(uint16_t mask)
+{
+    writeRegister16(INA226_REG_MASKENABLE, mask);
+}
 
-uint16_t INA226_Class::getMaskEnable(void) { return readRegister16(INA226_REG_MASKENABLE); }
+uint16_t INA226_Class::getMaskEnable(void)
+{
+    return readRegister16(INA226_REG_MASKENABLE);
+}
 
-void INA226_Class::enableShuntOverLimitAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_SOL); }
+void INA226_Class::enableShuntOverLimitAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_SOL);
+}
 
-void INA226_Class::enableShuntUnderLimitAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_SUL); }
+void INA226_Class::enableShuntUnderLimitAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_SUL);
+}
 
-void INA226_Class::enableBusOvertLimitAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_BOL); }
+void INA226_Class::enableBusOvertLimitAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_BOL);
+}
 
-void INA226_Class::enableBusUnderLimitAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_BUL); }
+void INA226_Class::enableBusUnderLimitAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_BUL);
+}
 
-void INA226_Class::enableOverPowerLimitAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_POL); }
+void INA226_Class::enableOverPowerLimitAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_POL);
+}
 
-void INA226_Class::enableConversionReadyAlert(void) { writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_CNVR); }
+void INA226_Class::enableConversionReadyAlert(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, INA226_BIT_CNVR);
+}
 
-void INA226_Class::disableAlerts(void) { writeRegister16(INA226_REG_MASKENABLE, 0); }
+void INA226_Class::disableAlerts(void)
+{
+    writeRegister16(INA226_REG_MASKENABLE, 0);
+}
 
 void INA226_Class::setBusVoltageLimit(float voltage)
 {
@@ -225,12 +259,9 @@ void INA226_Class::setAlertInvertedPolarity(bool inverted)
 {
     uint16_t temp = getMaskEnable();
 
-    if (inverted)
-    {
+    if (inverted) {
         temp |= INA226_BIT_APOL;
-    }
-    else
-    {
+    } else {
         temp &= ~INA226_BIT_APOL;
     }
 
@@ -241,21 +272,24 @@ void INA226_Class::setAlertLatch(bool latch)
 {
     uint16_t temp = getMaskEnable();
 
-    if (latch)
-    {
+    if (latch) {
         temp |= INA226_BIT_LEN;
-    }
-    else
-    {
+    } else {
         temp &= ~INA226_BIT_LEN;
     }
 
     setMaskEnable(temp);
 }
 
-bool INA226_Class::isMathOverflow(void) { return ((getMaskEnable() & INA226_BIT_OVF) == INA226_BIT_OVF); }
+bool INA226_Class::isMathOverflow(void)
+{
+    return ((getMaskEnable() & INA226_BIT_OVF) == INA226_BIT_OVF);
+}
 
-bool INA226_Class::isAlert(void) { return ((getMaskEnable() & INA226_BIT_AFF) == INA226_BIT_AFF); }
+bool INA226_Class::isAlert(void)
+{
+    return ((getMaskEnable() & INA226_BIT_AFF) == INA226_BIT_AFF);
+}
 
 int16_t INA226_Class::readRegister16(uint8_t reg)
 {
