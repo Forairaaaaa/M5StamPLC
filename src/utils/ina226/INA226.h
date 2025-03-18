@@ -30,12 +30,6 @@ SOFTWARE.
 #include <cstdint>
 #include <M5Unified.h>
 
-// #if ARDUINO >= 100
-// #include "Arduino.h"
-// #else
-// #include "WProgram.h"
-// #endif
-
 #define INA226_ADDRESS (0x40)
 
 #define INA226_REG_CONFIG       (0x00)

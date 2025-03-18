@@ -1,13 +1,12 @@
 /*
- *SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+ * SPDX-FileCopyrightText: 2025 M5Stack Technology CO LTD
  *
- *SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 #pragma once
 #include "pin_config.h"
 #include "utils/pi4ioe5v6408/pi4ioe5v6408.h"
 #include "utils/aw9523/aw9523.h"
-#include "utils/display/display.h"
 #include "utils/ina226/ina226.h"
 #include "utils/lm75b/lm75b.h"
 #include "utils/rx8130/rx8130.h"
@@ -17,8 +16,6 @@
 #include <mbcontroller.h>
 
 namespace m5 {
-
-extern LGFX_StamPLC display;
 
 class M5_STAMPLC {
 public:
@@ -31,6 +28,9 @@ public:
         /* CAN */
         bool enableCan   = false;
         long canBaudRate = 1000000;  // 25000, 50000, 100000, 125000, 250000, 500000, 800000, 1000000
+
+        /* SD Card */
+        bool enableSdCard = false;
     };
 
     Config_t config(void) const
@@ -43,11 +43,10 @@ public:
     }
 
     void begin();
-    void begin(m5::M5Unified::config_t unifiedConfig);
     void update();
 
-    LGFX_Device& Display = display;
-    LGFX_Device& Lcd     = Display;
+    LGFX_Device& Display = M5.Display;
+    LGFX_Device& Lcd     = M5.Lcd;
     Button_Class BtnA;
     Button_Class BtnB;
     Button_Class BtnC;
@@ -155,12 +154,12 @@ private:
     void io_expander_a_init();
     void update_button_state();
     void io_expander_b_init();
-    void display_init();
     void lm75b_init();
     void ina226_init();
     void rx8130_init();
     void modbus_slave_init();
     void can_init();
+    void sd_card_init();
 };
 
 }  // namespace m5
