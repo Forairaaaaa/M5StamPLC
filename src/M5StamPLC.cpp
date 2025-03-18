@@ -1,13 +1,14 @@
 /*
- *SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+ * SPDX-FileCopyrightText: 2025 M5Stack Technology CO LTD
  *
- *SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 #include "M5StamPLC.h"
 #include "pin_config.h"
 #include "utils/modbus_params/modbus_params.h"
 #include <cstring>
 #include <mbcontroller.h>
+#include <SD.h>
 
 using namespace m5;
 
@@ -15,7 +16,8 @@ M5_STAMPLC M5StamPLC;
 
 void M5_STAMPLC::begin()
 {
-    display_init();
+    M5.begin();
+
     i2c_init();
     io_expander_a_init();
     io_expander_b_init();
@@ -29,13 +31,11 @@ void M5_STAMPLC::begin()
     if (_config.enableCan) {
         can_init();
     }
+    if (_config.enableSdCard) {
+        sd_card_init();
+    }
 
     printf("init done\n");
-}
-
-void M5_STAMPLC::begin(m5::M5Unified::config_t unifiedConfig)
-{
-    begin();
 }
 
 void M5_STAMPLC::update()
@@ -223,19 +223,6 @@ void M5_STAMPLC::writePlcAllRelay(const uint8_t& relayState)
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                   Display                                  */
-/* -------------------------------------------------------------------------- */
-namespace m5 {
-LGFX_StamPLC display;
-}
-
-void M5_STAMPLC::display_init()
-{
-    printf("display init");
-    display.init();
-}
-
-/* -------------------------------------------------------------------------- */
 /*                                    LM75B                                   */
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::lm75b_init()
@@ -290,6 +277,20 @@ void M5_STAMPLC::rx8130_init()
     } else {
         RX8130.disableIrq();
         RX8130.clearIrqFlags();
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                   SD Card                                  */
+/* -------------------------------------------------------------------------- */
+void M5_STAMPLC::sd_card_init()
+{
+    printf("sd card init\n");
+
+    if (!SD.begin(STAMPLC_PIN_SD_CS, SPI, 4000000)) {
+        printf("sd card init failed\n");
+    } else {
+        printf("sd card init success\n");
     }
 }
 

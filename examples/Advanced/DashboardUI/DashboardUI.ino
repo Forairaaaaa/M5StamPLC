@@ -1,7 +1,7 @@
 /*
- *SPDX-FileCopyrightText: 2024 M5Stack Technology CO LTD
+ * SPDX-FileCopyrightText: 2025 M5Stack Technology CO LTD
  *
- *SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: MIT
  */
 #include <Arduino.h>
 #include <M5StamPLC.h>
@@ -45,19 +45,9 @@ void update_button_events()
     }
 
     /* Play button press and release tone */
-    if (M5StamPLC.BtnA.wasPressed()) {
+    if (M5StamPLC.BtnA.wasPressed() || M5StamPLC.BtnB.wasPressed() || M5StamPLC.BtnC.wasPressed()) {
         M5StamPLC.tone(600, 20);
-    } else if (M5StamPLC.BtnA.wasReleased()) {
-        M5StamPLC.tone(800, 20);
-    }
-    if (M5StamPLC.BtnB.wasPressed()) {
-        M5StamPLC.tone(600, 20);
-    } else if (M5StamPLC.BtnB.wasReleased()) {
-        M5StamPLC.tone(800, 20);
-    }
-    if (M5StamPLC.BtnC.wasPressed()) {
-        M5StamPLC.tone(600, 20);
-    } else if (M5StamPLC.BtnC.wasReleased()) {
+    } else if (M5StamPLC.BtnA.wasReleased() || M5StamPLC.BtnB.wasReleased() || M5StamPLC.BtnC.wasReleased()) {
         M5StamPLC.tone(800, 20);
     }
 }

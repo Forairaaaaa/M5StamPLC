@@ -1,14 +1,3 @@
-/**
- * @file lm75b.h
- * @author Forairaaaaa
- * @brief
- * @version 0.1
- * @date 2024-07-04
- *
- * @copyright Copyright (c) 2024
- *
- */
-
 /* LM75B Driver Library
  * Copyright (c) 2013 Neil Thiessen
  *

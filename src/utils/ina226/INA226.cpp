@@ -24,14 +24,6 @@ SOFTWARE.
 
 */
 
-// #if ARDUINO >= 100
-// #include "Arduino.h"
-// #else
-// #include "WProgram.h"
-// #endif
-
-// #include <Wire.h>
-
 #include "INA226.h"
 #include <cstdint>
 #include <cmath>

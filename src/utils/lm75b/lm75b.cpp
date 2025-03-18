@@ -1,13 +1,3 @@
-/**
- * @file lm75b.cpp
- * @author Forairaaaaa
- * @brief
- * @version 0.1
- * @date 2024-07-04
- *
- * @copyright Copyright (c) 2024
- *
- */
 #include "lm75b.h"
 
 bool LM75B_Class::begin()
