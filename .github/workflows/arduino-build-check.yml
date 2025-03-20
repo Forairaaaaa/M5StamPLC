@@ -9,11 +9,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install ESP32 Core
-        run: |
-          arduino-cli core update-index
-          arduino-cli core install esp32:esp32
-
       - name: Compile sketches
         uses: arduino/compile-sketches@v1
         with:
