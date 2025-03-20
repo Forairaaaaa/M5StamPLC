@@ -83,10 +83,6 @@ void DashboardUI::render_status_panel()
 
 void DashboardUI::render_console_panel()
 {
-    constexpr int panel_startup_x         = 0 + 2;
-    constexpr int panel_startup_y         = 135 - 2;
-    constexpr int panel_startup_w         = 79;
-    constexpr int panel_startup_h         = 90;
     constexpr int panel_x                 = 0 + 2;
     constexpr int panel_y                 = 45 - 2;
     constexpr int panel_w                 = 79;
@@ -173,7 +169,6 @@ void DashboardUI::render_io_panel()
     constexpr int panel_x                 = 85 - 2;
     constexpr int panel_y                 = 0 + 2;
     constexpr int panel_w                 = 155;
-    constexpr int panel_h                 = 135 - 4;
     constexpr int pannel_input_h          = 55;
     constexpr int pannel_input_r          = 6;
     constexpr int inner_pannel_input_mt   = 2;
