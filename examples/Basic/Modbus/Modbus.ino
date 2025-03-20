@@ -22,7 +22,7 @@ void setup()
 
 void loop()
 {
-    /* Now you can controll StaamPLC via Modbus RS485 */
+    /* Now you can controll StamPLC via Modbus RS485 */
     /*
      * Modbus Slave Configuration for M5StamPLC
      * =======================================
