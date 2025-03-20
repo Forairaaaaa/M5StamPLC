@@ -418,7 +418,7 @@ static void modbus_daemon(void* param)
         // Check for read/write events of Modbus master for certain events
         (void)mbc_slave_check_event((mb_event_group_t)MB_READ_WRITE_MASK);
         ESP_ERROR_CHECK_WITHOUT_ABORT(mbc_slave_get_param_info(&reg_info, MB_PAR_INFO_GET_TOUT));
-        const char* rw_str = (reg_info.type & MB_READ_MASK) ? "R" : "W";
+        // const char* rw_str = (reg_info.type & MB_READ_MASK) ? "R" : "W";
 
         // Filter events and process them accordingly
         if (reg_info.type & (MB_EVENT_HOLDING_REG_WR | MB_EVENT_HOLDING_REG_RD)) {
