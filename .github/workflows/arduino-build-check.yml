@@ -14,5 +14,5 @@ jobs:
         with:
           fqbn: esp32:esp32:m5stack_stamp_s3
           libraries: |
-            - name: .
+            - source-path: ./
             - name: M5Unified
