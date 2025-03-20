@@ -7,6 +7,7 @@
 #include <M5Unified.h>
 #include <driver/gpio.h>
 // https://download.epsondevice.com/td/pdf/app/RX8130CE_en.pdf
+// https://github.com/alexreinert/piVCCU/blob/master/kernel/rtc-rx8130.c
 
 class RX8130_Class : public m5::I2C_Device {
 public:

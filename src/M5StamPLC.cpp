@@ -14,6 +14,8 @@ using namespace m5;
 
 M5_STAMPLC M5StamPLC;
 
+static const char* TAG = "M5StamPLC";
+
 void M5_STAMPLC::begin()
 {
     M5.begin();
@@ -34,8 +36,6 @@ void M5_STAMPLC::begin()
     if (_config.enableSdCard) {
         sd_card_init();
     }
-
-    printf("init done\n");
 }
 
 void M5_STAMPLC::update()
@@ -48,23 +48,8 @@ void M5_STAMPLC::update()
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::i2c_init()
 {
-    printf("i2c init");
     m5::In_I2C.release();
     m5::In_I2C.begin(I2C_NUM_0, STAMPLC_PIN_I2C_INTER_SDA, STAMPLC_PIN_I2C_INTER_SCL);
-    // delay(1000);
-
-    // Scan
-    printf("start scan:\n");
-    bool scan_list[120];
-    m5::In_I2C.scanID(scan_list);
-    uint8_t device_num = 0;
-    for (int i = 8; i < 0x78; i++) {
-        if (scan_list[i]) {
-            device_num++;
-            printf("get 0x%02X\n", i);
-        }
-    }
-    printf("device num: %d\n", device_num);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,10 +57,9 @@ void M5_STAMPLC::i2c_init()
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::io_expander_a_init()
 {
-    printf("io expander a init\n");
     _io_expander_a = new PI4IOE5V6408_Class;
     if (!_io_expander_a->begin()) {
-        printf("io expander a init failed\n");
+        ESP_LOGE(TAG, "io expander a init failed");
     } else {
         _io_expander_a->resetIrq();
 
@@ -154,11 +138,9 @@ static std::vector<int> _out_pin_list = {0, 1, 2, 3};
 
 void M5_STAMPLC::io_expander_b_init()
 {
-    printf("io expander b init\n");
-
     _io_expander_b = new AW9523_Class;
     if (!_io_expander_b->begin()) {
-        printf("io expander b init failed\n");
+        ESP_LOGE(TAG, "io expander b init failed");
     } else {
         _io_expander_b->configureDirection(0x0);  // all inputs!
         _io_expander_b->openDrainPort0(false);    // push pull default
@@ -227,10 +209,8 @@ void M5_STAMPLC::writePlcAllRelay(const uint8_t& relayState)
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::lm75b_init()
 {
-    printf("lm75b init\n");
-
     if (!LM75B.begin()) {
-        printf("lm75b init failed\n");
+        ESP_LOGE(TAG, "lm75b init failed");
     }
 }
 
@@ -244,10 +224,8 @@ float M5_STAMPLC::getTemp()
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::ina226_init()
 {
-    printf("ina226 init\n");
-
     if (!INA226.begin()) {
-        printf("ina226 init failed\n");
+        ESP_LOGE(TAG, "ina226 init failed");
     } else {
         // 28.4 Hz
         INA226.configure(INA226_AVERAGES_16, INA226_BUS_CONV_TIME_1100US, INA226_SHUNT_CONV_TIME_1100US,
@@ -271,9 +249,8 @@ float M5_STAMPLC::getIoSocketOutputCurrent()
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::rx8130_init()
 {
-    printf("rx8130 init\n");
     if (!RX8130.begin()) {
-        printf("rx8130 init failed!\n");
+        ESP_LOGE(TAG, "rx8130 init failed!");
     } else {
         RX8130.disableIrq();
         RX8130.clearIrqFlags();
@@ -285,12 +262,8 @@ void M5_STAMPLC::rx8130_init()
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::sd_card_init()
 {
-    printf("sd card init\n");
-
     if (!SD.begin(STAMPLC_PIN_SD_CS, SPI, 4000000)) {
-        printf("sd card init failed\n");
-    } else {
-        printf("sd card init success\n");
+        ESP_LOGE(TAG, "sd card init failed");
     }
 }
 
@@ -410,15 +383,12 @@ static void modbus_daemon(void* param)
 {
     delay(2000);
 
-    printf("start modbus daemon\n");
-
     mb_param_info_t reg_info;
 
     while (1) {
         // Check for read/write events of Modbus master for certain events
         (void)mbc_slave_check_event((mb_event_group_t)MB_READ_WRITE_MASK);
         ESP_ERROR_CHECK_WITHOUT_ABORT(mbc_slave_get_param_info(&reg_info, MB_PAR_INFO_GET_TOUT));
-        // const char* rw_str = (reg_info.type & MB_READ_MASK) ? "R" : "W";
 
         // Filter events and process them accordingly
         if (reg_info.type & (MB_EVENT_HOLDING_REG_WR | MB_EVENT_HOLDING_REG_RD)) {
@@ -438,9 +408,6 @@ static void modbus_daemon(void* param)
         } else if (reg_info.type & MB_EVENT_DISCRETE_RD) {
             // Pass
         } else if (reg_info.type & (MB_EVENT_COILS_RD | MB_EVENT_COILS_WR)) {
-            // printf("> Get msg: C-{} addr: %d size: %d\n", rw_str, (unsigned)reg_info.mb_offset,
-            //        (unsigned)reg_info.size);
-
             // portENTER_CRITICAL(&param_lock);
             modbus_handle_update_coils();
             // portEXIT_CRITICAL(&param_lock);
@@ -450,8 +417,6 @@ static void modbus_daemon(void* param)
 
 void M5_STAMPLC::modbus_slave_init()
 {
-    printf("modbus slave init with id: %d, baud rate: %ld\n", _config.modbusSlaveId, _config.modbusBaudRate);
-
     // Using UART_NUM_1 for RS485
     Serial1.end();
 
@@ -526,8 +491,6 @@ void M5_STAMPLC::modbus_slave_init()
 
 void M5_STAMPLC::can_init()
 {
-    printf("can init with baud rate: %ld\n", _config.canBaudRate);
-
     static twai_timing_config_t t_config;
     switch (_config.canBaudRate) {
         case 25000:
