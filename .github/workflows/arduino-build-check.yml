@@ -12,4 +12,4 @@ jobs:
       - name: Compile sketches
         uses: arduino/compile-sketches@v1
         with:
-          fqbn: m5stack:esp32:stamp_s3
+          fqbn: m5stack:esp32:m5stack_stamp_s3
