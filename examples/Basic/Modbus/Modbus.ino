@@ -13,7 +13,6 @@ void setup()
     config.enableModbusSlave = true;
     config.modbusBaudRate    = 115200;
     config.modbusSlaveId     = 1;
-    config.enableCan         = true;
     M5StamPLC.config(config);
 
     /* Init M5StamPLC */
