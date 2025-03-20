@@ -24,7 +24,7 @@ SOFTWARE.
 
 */
 
-#include "INA226.h"
+#include "ina226.h"
 #include <cstdint>
 #include <cmath>
 
