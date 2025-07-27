@@ -99,6 +99,14 @@ void M5_STAMPLC::io_expander_a_init()
     }
 }
 
+void M5_STAMPLC::setBacklight(bool on)
+{
+    if (_io_expander_a) {
+        _io_expander_a->setHighImpedance(7, !on);
+        _io_expander_a->digitalWrite(7, !on); // backlight is active low
+    }
+}
+
 void M5_STAMPLC::update_button_state()
 {
     BtnA.setRawState(millis(), !_io_expander_a->digitalRead(2));
