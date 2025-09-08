@@ -38,11 +38,6 @@ void M5_STAMPLC::begin()
     }
 }
 
-void M5_STAMPLC::update()
-{
-    update_button_state();
-}
-
 /* -------------------------------------------------------------------------- */
 /*                                     I2C                                    */
 /* -------------------------------------------------------------------------- */
@@ -53,80 +48,49 @@ void M5_STAMPLC::i2c_init()
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                  IO EXT A                                  */
+/*                                  IO EXT A (0)                              */
 /* -------------------------------------------------------------------------- */
 void M5_STAMPLC::io_expander_a_init()
 {
-    _io_expander_a = new PI4IOE5V6408_Class;
-    if (!_io_expander_a->begin()) {
-        ESP_LOGE(TAG, "io expander a init failed");
-    } else {
-        _io_expander_a->resetIrq();
+    auto& ioe = M5.getIOExpander(0);
 
-        // Buttons init
-        _io_expander_a->setDirection(0, false);
-        _io_expander_a->setPullMode(0, true);
-        _io_expander_a->setHighImpedance(0, false);
+    // Status light init
+    ioe.setDirection(4, true);
+    ioe.setPullMode(4, false);
+    ioe.setHighImpedance(4, true);
 
-        _io_expander_a->setDirection(1, false);
-        _io_expander_a->setPullMode(1, true);
-        _io_expander_a->setHighImpedance(1, false);
+    ioe.setDirection(5, true);
+    ioe.setPullMode(5, false);
+    ioe.setHighImpedance(5, true);
 
-        _io_expander_a->setDirection(2, false);
-        _io_expander_a->setPullMode(2, true);
-        _io_expander_a->setHighImpedance(2, false);
-
-        // Bg light enable
-        _io_expander_a->setDirection(7, true);
-        _io_expander_a->setPullMode(7, false);
-        _io_expander_a->setHighImpedance(7, false);
-        _io_expander_a->digitalWrite(7, false);
-
-        // Status light init
-        _io_expander_a->setDirection(4, true);
-        _io_expander_a->setPullMode(4, false);
-        _io_expander_a->setHighImpedance(4, true);
-
-        _io_expander_a->setDirection(5, true);
-        _io_expander_a->setPullMode(5, false);
-        _io_expander_a->setHighImpedance(5, true);
-
-        _io_expander_a->setDirection(6, true);
-        _io_expander_a->setPullMode(6, false);
-        _io_expander_a->setHighImpedance(6, true);
-
-        delay(100);
-    }
-}
-
-void M5_STAMPLC::update_button_state()
-{
-    BtnA.setRawState(millis(), !_io_expander_a->digitalRead(2));
-    BtnB.setRawState(millis(), !_io_expander_a->digitalRead(1));
-    BtnC.setRawState(millis(), !_io_expander_a->digitalRead(0));
+    ioe.setDirection(6, true);
+    ioe.setPullMode(6, false);
+    ioe.setHighImpedance(6, true);
 }
 
 void M5_STAMPLC::setStatusLight(const uint8_t& r, const uint8_t& g, const uint8_t& b)
 {
+    auto& ioe = M5.getIOExpander(0);
+
     if (r == 0) {
-        _io_expander_a->setHighImpedance(6, true);
+        ioe.setHighImpedance(6, true);
     } else {
-        _io_expander_a->setHighImpedance(6, false);
-        _io_expander_a->digitalWrite(6, false);
+        ioe.setHighImpedance(6, false);
+        ioe.digitalWrite(6, false);
     }
 
     if (g == 0) {
-        _io_expander_a->setHighImpedance(5, true);
+        ioe.setHighImpedance(5, true);
     } else {
-        _io_expander_a->setHighImpedance(5, false);
-        _io_expander_a->digitalWrite(5, false);
+        ioe.setHighImpedance(5, false);
+        ioe.digitalWrite(5, false);
     }
 
     if (b == 0) {
-        _io_expander_a->setHighImpedance(4, true);
+        ioe.setHighImpedance(4, true);
     } else {
-        _io_expander_a->setHighImpedance(4, false);
-        _io_expander_a->digitalWrite(4, false);
+        ioe.setHighImpedance(4, false);
+        ioe.digitalWrite(4, false);
     }
 }
 
@@ -227,21 +191,25 @@ void M5_STAMPLC::ina226_init()
     if (!INA226.begin()) {
         ESP_LOGE(TAG, "ina226 init failed");
     } else {
-        // 28.4 Hz
-        INA226.configure(INA226_AVERAGES_16, INA226_BUS_CONV_TIME_1100US, INA226_SHUNT_CONV_TIME_1100US,
-                         INA226_MODE_SHUNT_BUS_CONT);
-        INA226.calibrate(0.01, 8.192);
+        INA226_Class::config_t cfg;
+        cfg.sampling_rate = INA226_Class::Sampling::Rate16;
+        cfg.bus_conversion_time = INA226_Class::ConversionTime::US_1100;
+        cfg.shunt_conversion_time = INA226_Class::ConversionTime::US_1100;
+        cfg.mode = INA226_Class::Mode::ShuntAndBus;
+        cfg.shunt_res = 0.01f;
+        cfg.max_expected_current = 2.0f;
+        INA226.config(cfg);
     }
 }
 
 float M5_STAMPLC::getPowerVoltage()
 {
-    return INA226.readBusVoltage();
+    return INA226.getBusVoltage();
 }
 
 float M5_STAMPLC::getIoSocketOutputCurrent()
 {
-    return INA226.readShuntCurrent();
+    return INA226.getShuntCurrent();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -364,13 +332,13 @@ void modbus_handle_update_temp()
 
 void modbus_handle_update_voltage()
 {
-    float32_2_uint16(M5StamPLC.INA226.readBusVoltage(), input_reg_params.input_voltage_0,
+    float32_2_uint16(M5StamPLC.INA226.getBusVoltage(), input_reg_params.input_voltage_0,
                      input_reg_params.input_voltage_1);
 }
 
 void modbus_handle_update_current()
 {
-    float32_2_uint16(M5StamPLC.INA226.readShuntCurrent(), input_reg_params.input_current_0,
+    float32_2_uint16(M5StamPLC.INA226.getShuntCurrent(), input_reg_params.input_current_0,
                      input_reg_params.input_current_1);
 }
 

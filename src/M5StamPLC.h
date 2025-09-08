@@ -5,9 +5,7 @@
  */
 #pragma once
 #include "pin_config.h"
-#include "utils/pi4ioe5v6408/pi4ioe5v6408.h"
 #include "utils/aw9523/aw9523.h"
-#include "utils/ina226/ina226.h"
 #include "utils/lm75b/lm75b.h"
 #include "utils/rx8130/rx8130.h"
 #include <M5GFX.h>
@@ -43,13 +41,9 @@ public:
     }
 
     void begin();
-    void update();
 
     LGFX_Device& Display = M5.Display;
     LGFX_Device& Lcd     = M5.Lcd;
-    Button_Class BtnA;
-    Button_Class BtnB;
-    Button_Class BtnC;
 
     LM75B_Class LM75B;
     INA226_Class INA226;
@@ -146,13 +140,11 @@ public:
     void noTone();
 
 private:
-    PI4IOE5V6408_Class* _io_expander_a = nullptr;  // Controls status lights, lcd backlight, buttons
     AW9523_Class* _io_expander_b       = nullptr;  // Controls plc relays, plc inputs
     Config_t _config;
 
     void i2c_init();
     void io_expander_a_init();
-    void update_button_state();
     void io_expander_b_init();
     void lm75b_init();
     void ina226_init();
