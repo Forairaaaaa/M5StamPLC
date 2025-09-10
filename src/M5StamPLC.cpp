@@ -38,6 +38,11 @@ void M5_STAMPLC::begin()
     }
 }
 
+void M5_STAMPLC::update()
+{
+    M5.update();
+}
+
 /* -------------------------------------------------------------------------- */
 /*                                     I2C                                    */
 /* -------------------------------------------------------------------------- */
@@ -62,7 +67,7 @@ void M5_STAMPLC::io_expander_a_init()
     ioe.setDirection(5, true);
     ioe.setPullMode(5, false);
     ioe.setHighImpedance(5, true);
-  
+
     ioe.setDirection(6, true);
     ioe.setPullMode(6, false);
     ioe.setHighImpedance(6, true);
@@ -73,7 +78,7 @@ void M5_STAMPLC::setBacklight(bool on)
     auto& ioe = M5.getIOExpander(0);
 
     ioe.setHighImpedance(7, !on);
-    ioe.digitalWrite(7, !on); // backlight is active low
+    ioe.digitalWrite(7, !on);  // backlight is active low
 }
 
 void M5_STAMPLC::setStatusLight(const uint8_t& r, const uint8_t& g, const uint8_t& b)
@@ -200,12 +205,12 @@ void M5_STAMPLC::ina226_init()
         ESP_LOGE(TAG, "ina226 init failed");
     } else {
         INA226_Class::config_t cfg;
-        cfg.sampling_rate = INA226_Class::Sampling::Rate16;
-        cfg.bus_conversion_time = INA226_Class::ConversionTime::US_1100;
+        cfg.sampling_rate         = INA226_Class::Sampling::Rate16;
+        cfg.bus_conversion_time   = INA226_Class::ConversionTime::US_1100;
         cfg.shunt_conversion_time = INA226_Class::ConversionTime::US_1100;
-        cfg.mode = INA226_Class::Mode::ShuntAndBus;
-        cfg.shunt_res = 0.01f;
-        cfg.max_expected_current = 2.0f;
+        cfg.mode                  = INA226_Class::Mode::ShuntAndBus;
+        cfg.shunt_res             = 0.01f;
+        cfg.max_expected_current  = 2.0f;
         INA226.config(cfg);
     }
 }
@@ -480,6 +485,9 @@ void M5_STAMPLC::can_init()
             break;
         case 125000:
             t_config = TWAI_TIMING_CONFIG_125KBITS();
+            break;
+        case 250000:
+            t_config = TWAI_TIMING_CONFIG_250KBITS();
             break;
         case 500000:
             t_config = TWAI_TIMING_CONFIG_500KBITS();

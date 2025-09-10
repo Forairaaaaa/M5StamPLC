@@ -57,6 +57,24 @@ static uint8_t dec2bcd(uint8_t val)
     return ((val / 10) << 4) + (val % 10);
 }
 
+// Helper function to check if a year is a leap year
+static bool isLeapYear(int year)
+{
+    return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+}
+
+// Helper function to get the number of days in a given month
+// Note: month is 1-12 for this function
+static int getDaysInMonth(int month, int year)
+{
+    static const int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    if (month == 2 && isLeapYear(year)) {
+        return 29;
+    }
+    return daysInMonth[month - 1];
+}
+
 bool RX8130_Class::begin()
 {
     bool result = _i2c->start(_addr, false, _freq) && _i2c->stop();
@@ -75,7 +93,7 @@ void RX8130_Class::setTime(struct tm *time)
     writeRegister8(RX8130_REG_CTRL0, rbuf);
 
     uint8_t date[7] = {dec2bcd(time->tm_sec),       dec2bcd(time->tm_min),  dec2bcd(time->tm_hour),
-                       dec2bcd(time->tm_wday),      dec2bcd(time->tm_mday), dec2bcd(time->tm_mon),
+                       dec2bcd(time->tm_wday),      dec2bcd(time->tm_mday), dec2bcd(time->tm_mon + 1),
                        dec2bcd(time->tm_year % 100)};
 
     writeRegister(RX8130_REG_SEC, date, 7);
@@ -95,11 +113,61 @@ void RX8130_Class::getTime(struct tm *time)
     time->tm_min  = bcd2dec(date[RX8130_REG_MIN - 0x10] & 0x7f);
     time->tm_hour = bcd2dec(date[RX8130_REG_HOUR - 0x10] & 0x3f);  // only 24-hour clock
     time->tm_mday = bcd2dec(date[RX8130_REG_MDAY - 0x10] & 0x3f);
-    time->tm_mon  = bcd2dec(date[RX8130_REG_MONTH - 0x10] & 0x1f);
     time->tm_year = bcd2dec(date[RX8130_REG_YEAR - 0x10]);
     time->tm_wday = bcd2dec(date[RX8130_REG_WDAY - 0x10] & 0x7f);
 
+    // Read month from RTC (1-12) and convert to tm_mon (0-11)
+    int rtc_month = bcd2dec(date[RX8130_REG_MONTH - 0x10] & 0x1f);
+    time->tm_mon  = rtc_month - 1;
     time->tm_year += 100;
+
+    // Fix date overflow issues - RX8130 doesn't handle month/day overflow automatically
+    // Only correct when we detect actual invalid dates
+    bool dateChanged = false;
+
+    // Check for invalid day (day > maximum days in current month)
+    int maxDaysInMonth = getDaysInMonth(rtc_month, time->tm_year + 1900);
+    if (time->tm_mday > maxDaysInMonth) {
+        time->tm_mday = 1;
+        rtc_month++;
+        if (rtc_month > 12) {
+            rtc_month = 1;
+            time->tm_year++;
+        }
+        time->tm_mon = rtc_month - 1;
+        dateChanged  = true;
+    }
+
+    // Check for invalid month (month > 12 or month < 1)
+    else if (rtc_month > 12) {
+        rtc_month = 1;
+        time->tm_year++;
+        time->tm_mon = rtc_month - 1;
+        dateChanged  = true;
+    } else if (rtc_month < 1) {
+        rtc_month = 12;
+        time->tm_year--;
+        time->tm_mon = rtc_month - 1;
+        dateChanged  = true;
+    }
+
+    // If we corrected the date, update the RTC to prevent future issues
+    if (dateChanged) {
+        // Set STOP bit before changing clock/calendar
+        uint8_t rbuf = readRegister8(RX8130_REG_CTRL0);
+        rbuf         = rbuf | RX8130_BIT_CTRL_STOP;
+        writeRegister8(RX8130_REG_CTRL0, rbuf);
+
+        // Only update date registers, preserve time
+        uint8_t dateRegs[4] = {dec2bcd(time->tm_wday), dec2bcd(time->tm_mday), dec2bcd(rtc_month),
+                               dec2bcd((time->tm_year - 100) % 100)};
+        writeRegister(RX8130_REG_WDAY, dateRegs, 4);
+
+        // Clear STOP bit after changing clock/calendar
+        rbuf = readRegister8(RX8130_REG_CTRL0);
+        rbuf = rbuf & ~RX8130_BIT_CTRL_STOP;
+        writeRegister8(RX8130_REG_CTRL0, rbuf);
+    }
 }
 
 void RX8130_Class::clearIrqFlags()
