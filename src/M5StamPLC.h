@@ -41,6 +41,7 @@ public:
     }
 
     void begin();
+    void update();
 
     LGFX_Device& Display = M5.Display;
     LGFX_Device& Lcd     = M5.Lcd;
@@ -48,6 +49,9 @@ public:
     LM75B_Class LM75B;
     INA226_Class INA226;
     RX8130_Class RX8130;
+    Button_Class& BtnA = M5.BtnA;
+    Button_Class& BtnB = M5.BtnB;
+    Button_Class& BtnC = M5.BtnC;
 
     /**
      * @brief Set Status Light
@@ -146,8 +150,8 @@ public:
      */
     void noTone();
 
-private:
-    AW9523_Class* _io_expander_b       = nullptr;  // Controls plc relays, plc inputs
+protected:
+    AW9523_Class* _io_expander_b = nullptr;  // Controls plc relays, plc inputs
     Config_t _config;
 
     void i2c_init();
