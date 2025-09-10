@@ -486,6 +486,9 @@ void M5_STAMPLC::can_init()
         case 125000:
             t_config = TWAI_TIMING_CONFIG_125KBITS();
             break;
+        case 250000:
+            t_config = TWAI_TIMING_CONFIG_250KBITS();
+            break;
         case 500000:
             t_config = TWAI_TIMING_CONFIG_500KBITS();
             break;
