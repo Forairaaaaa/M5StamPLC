@@ -59,6 +59,13 @@ public:
     void setStatusLight(const uint8_t& r, const uint8_t& g, const uint8_t& b);
 
     /**
+     * @brief Control the LCD backlight
+     *
+     * @param on true to turn backlight ON, false to turn it OFF
+     */
+    void setBacklight(bool on);
+
+    /**
      * @brief Read PLC Input
      *
      * @param channel 0-7

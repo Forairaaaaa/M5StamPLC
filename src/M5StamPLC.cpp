@@ -62,10 +62,18 @@ void M5_STAMPLC::io_expander_a_init()
     ioe.setDirection(5, true);
     ioe.setPullMode(5, false);
     ioe.setHighImpedance(5, true);
-
+  
     ioe.setDirection(6, true);
     ioe.setPullMode(6, false);
     ioe.setHighImpedance(6, true);
+}
+
+void M5_STAMPLC::setBacklight(bool on)
+{
+    auto& ioe = M5.getIOExpander(0);
+
+    ioe.setHighImpedance(7, !on);
+    ioe.digitalWrite(7, !on); // backlight is active low
 }
 
 void M5_STAMPLC::setStatusLight(const uint8_t& r, const uint8_t& g, const uint8_t& b)
