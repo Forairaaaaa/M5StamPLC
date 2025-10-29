@@ -14,18 +14,18 @@ public:
     bool begin();
 
     /**
-     * @brief Read AC Relay state
+     * @brief Read Relay state
      *
      * @return true if ON, false if OFF
      */
-    bool readAcRelay();
+    bool readRelay();
 
     /**
      * @brief Write AC Relay state
      *
      * @param state true if ON, false if OFF
      */
-    void writeAcRelay(const bool& state);
+    void writeRelay(const bool& state);
 
     /**
      * @brief Set Status Light

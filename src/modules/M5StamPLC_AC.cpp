@@ -11,7 +11,7 @@
 static const char* _tag = "M5StamPLC_AC";
 
 static const uint8_t _ioe_address        = 0x44;
-static const uint8_t _pin_ac_relay       = 2;
+static const uint8_t _pin_relay          = 2;
 static const uint8_t _pin_status_light_r = 5;
 static const uint8_t _pin_status_light_g = 6;
 static const uint8_t _pin_status_light_b = 7;
@@ -23,16 +23,17 @@ bool M5StamPLC_AC::begin()
         return true;
     }
 
-    _ioe = std::make_unique<m5::PI4IOE5V6408_Class>(_ioe_address);
+    _ioe = std::make_unique<m5::PI4IOE5V6408_Class>(_ioe_address, 400000, &m5::In_I2C);
     if (!_ioe->begin()) {
+        _ioe.reset();
         ESP_LOGE(_tag, "IOExpander initialization failed");
         return false;
     }
 
     // AC relay
-    _ioe->setDirection(_pin_ac_relay, true);
-    _ioe->setPullMode(_pin_ac_relay, false);
-    _ioe->setHighImpedance(_pin_ac_relay, false);
+    _ioe->setDirection(_pin_relay, true);
+    _ioe->setPullMode(_pin_relay, false);
+    _ioe->setHighImpedance(_pin_relay, false);
 
     // Status light
     auto setup_status_light_pin = [](m5::PI4IOE5V6408_Class* ioe, uint8_t pin) {
@@ -48,22 +49,22 @@ bool M5StamPLC_AC::begin()
     return true;
 }
 
-bool M5StamPLC_AC::readAcRelay()
+bool M5StamPLC_AC::readRelay()
 {
     if (!is_ioe_valid()) {
         return false;
     }
 
-    return _ioe->digitalRead(_pin_ac_relay);
+    return _ioe->digitalRead(_pin_relay);
 }
 
-void M5StamPLC_AC::writeAcRelay(const bool& state)
+void M5StamPLC_AC::writeRelay(const bool& state)
 {
     if (!is_ioe_valid()) {
         return;
     }
 
-    _ioe->digitalWrite(_pin_ac_relay, state);
+    _ioe->digitalWrite(_pin_relay, state);
 }
 
 void M5StamPLC_AC::setStatusLight(const uint8_t& r, const uint8_t& g, const uint8_t& b)

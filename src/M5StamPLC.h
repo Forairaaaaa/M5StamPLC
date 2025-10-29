@@ -8,6 +8,7 @@
 #include "utils/aw9523/aw9523.h"
 #include "utils/lm75b/lm75b.h"
 #include "utils/rx8130/rx8130.h"
+#include "modules/M5StamPLC_AC.h"
 #include <M5GFX.h>
 #include <M5Unified.hpp>
 #include <driver/twai.h>
