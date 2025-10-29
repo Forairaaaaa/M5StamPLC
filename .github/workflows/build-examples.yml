@@ -1,0 +1,42 @@
+name: Build Examples
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  compile-sketch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile sketches
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: "m5stack:esp32:m5stack_stamplc"
+          platforms: |
+            - name: "m5stack:esp32"
+              source-url: https://static-cdn.m5stack.com/resource/arduino/package_m5stack_index.json
+              version: "latest"
+          libraries: |
+            - name: M5Unified
+            - name: M5GFX
+            - source-path: ./
+          sketch-paths: |
+            - examples
+          cli-version: latest
+          enable-deltas-report: true
+          enable-warnings-report: true
+
+      - name: Upload sketches report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sketches-report
+          path: sketches-reports
