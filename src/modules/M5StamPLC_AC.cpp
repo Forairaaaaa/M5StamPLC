@@ -42,6 +42,7 @@ bool M5StamPLC_AC::begin()
         ioe->setHighImpedance(pin, false);
         ioe->digitalWrite(pin, true);
     };
+
     setup_status_light_pin(_ioe.get(), _pin_status_light_r);
     setup_status_light_pin(_ioe.get(), _pin_status_light_g);
     setup_status_light_pin(_ioe.get(), _pin_status_light_b);

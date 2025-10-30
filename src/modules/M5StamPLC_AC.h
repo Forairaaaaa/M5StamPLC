@@ -11,6 +11,12 @@
 
 class M5StamPLC_AC {
 public:
+    /**
+     * @brief Initialize M5StamPLC-AC
+     *
+     * @return true
+     * @return false
+     */
     bool begin();
 
     /**
